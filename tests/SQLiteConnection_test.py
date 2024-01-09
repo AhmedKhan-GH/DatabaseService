@@ -1,6 +1,6 @@
 import unittest
 from unittest.mock import Mock, patch
-from SQLiteConnection import SQLiteConnection
+from ..src.SQLiteConnection import SQLiteConnection
 
 class TestSQLiteConnection(unittest.TestCase):
     
