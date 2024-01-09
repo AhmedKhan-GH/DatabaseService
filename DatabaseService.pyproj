@@ -12,6 +12,7 @@
     <OutputPath>.</OutputPath>
     <Name>DatabaseService</Name>
     <RootNamespace>TraxDatabaseService</RootNamespace>
+    <TestFramework>unittest</TestFramework>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)' == 'Debug' ">
     <DebugSymbols>true</DebugSymbols>

@@ -178,6 +178,8 @@ DocProject/Help/html
 
 # Click-Once directory
 publish/
+*.pyproj
+*.sln
 
 # Publish Web Output
 *.[Pp]ublish.xml
