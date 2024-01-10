@@ -59,14 +59,13 @@ class SQLiteConnection :
             params (tuple, list, or dict, optional): The parameters to substitute into the query.
 
         Returns:
-            list: The result of the query if it's a SELECT query, or an empty list for other query types.
+            list: The result of the query if it's a SELECT query, or the row count for other query types.
         """
-        with self.connection:
-            with self.connection.cursor() as cursor:
-                cursor.execute(query, params or ())
-                if query.strip().upper().startswith("SELECT"):
-                    return cursor.fetchall()
-                else:
-                    return cursor.rowcount
-            
-   
+        cursor = self.connection.cursor()  # Create a cursor object using the connection
+        cursor.execute(query, params or ())  # Execute the query with parameters
+        
+        if query.strip().upper().startswith("SELECT"):
+            return cursor.fetchall()  # Return all fetched rows for SELECT queries
+        else:
+            self.connection.commit()  # Commit the transaction for non-SELECT queries
+            return cursor.rowcount  # Return the row count for non-SELECT queries
