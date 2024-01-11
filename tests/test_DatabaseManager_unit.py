@@ -11,8 +11,10 @@ class TestDatabaseManager(unittest.TestCase):
         
     def setUp(self):
         # Create an instance of DatabaseManager, dependency inject connection, manually enter context
-        self.db_manager = DatabaseManager(SQLiteConnection(":memory:"))
-        self.db_manager.__enter__()
+        
+        self.connection = SQLiteConnection(":memory:").__enter__()
+
+        self.db_manager = DatabaseManager(self.connection).__enter__()
 
         # Create a test table
         self.db_manager.create_table("""
