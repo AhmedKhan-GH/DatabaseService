@@ -1,6 +1,7 @@
 import unittest
 import sqlite3
 from DatabaseManager import DatabaseManager
+from SQLiteConnection import SQLiteConnection
 
 class TestDatabaseManager(unittest.TestCase):
 
@@ -9,8 +10,8 @@ class TestDatabaseManager(unittest.TestCase):
         self.db_manager.__exit__(None, None, None)
         
     def setUp(self):
-        # Create an instance of DatabaseManager and manually enter its context
-        self.db_manager = DatabaseManager(":memory:")
+        # Create an instance of DatabaseManager, dependency inject connection, manually enter context
+        self.db_manager = DatabaseManager(SQLiteConnection(":memory:"))
         self.db_manager.__enter__()
 
         # Create a test table
@@ -29,7 +30,7 @@ class TestDatabaseManager(unittest.TestCase):
         # Assert that the table was created
         self.assertTrue(len(result) > 0)
         
-    def test_insert_data(self):
+    def test_create_record(self):
         # Data to be inserted
         data = {'name': 'Test Name'}
 
@@ -44,7 +45,7 @@ class TestDatabaseManager(unittest.TestCase):
         self.assertEqual(len(result), 1)
         self.assertEqual(result[0][1], 'Test Name')
 
-    def test_query_data(self):
+    def test_read_record(self):
         # Insert data for testing
         self.db_manager.create_record("test_table", {"name": "Sample Name"})
         

@@ -11,7 +11,7 @@ class SQLiteConnection :
 
     def __enter__(self):
         self.connection = sqlite3.connect(self.db_name)
-        return self.connection
+        return self
 
     def __exit__(self, exc_type, exc_val, exc_tb):
         self.connection.close()
@@ -19,6 +19,7 @@ class SQLiteConnection :
     
     def execute_query(self, query, params=None):
         cursor = self.connection.cursor()  # Create a cursor object using the connection
+        
         cursor.execute(query, params or ())  # Execute the query with parameters
         
         if query.strip().upper().startswith("SELECT"):

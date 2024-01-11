@@ -2,26 +2,20 @@
 from SQLiteConnection import SQLiteConnection
 
 class DatabaseManager :
-    #constructor
-    def __init__(self, db_path):
-        self.db_path = db_path
-        self.connection = None
+    #constructor with dependency injection
+    def __init__(self, connection):
+        self.database = connection
 
     #upon context entry
     def __enter__(self):
-        #set database to SQLiteConnection object
-        self.database = SQLiteConnection(self.db_path)
         #set connection to sqlite3.connect object
-        self.database.__enter__()
         #return DatabaseManager object
         return self
         
     #upon context exit
     def __exit__(self, exc_type, exc_val, exc_tb):
-        #call __exit__ method of SQLiteConnection
-        #with appropriate data
-        return self.database.connection.__exit__(exc_type, exc_val, exc_tb)
-
+        return False
+    
     def print_table(self, table):
         # Create the select query
         select_query = f"SELECT * FROM {table};"
