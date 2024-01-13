@@ -19,14 +19,6 @@ jobs:
     - name: Run tests
       run: |
         python -m unittest discover -p "test*.py"
-    - name: Run custom script from file
-      run: |
-        file=$(find . -type f -name 'shell*' | head -n 1)
-        python $file &
-        python_pid=$!
-        sleep 5
-        kill -SIGINT $python_pid
-        wait $python_pid
     - name: Run custom scripts and terminate after delay
       run: |
         # Find all files starting with 'shell' and store them in an array
