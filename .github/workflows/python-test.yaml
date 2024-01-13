@@ -4,7 +4,6 @@ on: [push]
 
 jobs:
   test:
-
     runs-on: ubuntu-latest
 
     steps:
@@ -22,12 +21,10 @@ jobs:
         python -m unittest discover -p "test*.py"
     - name: Run custom script from file
       run: |
-	python -m unittest discover -p "shell*.py"
-	file=$(find . -type f -name 'shell*' | head -n 1)
-	python $file &
-	python_pid=$!
-	sleep 5
-	kill -SIGINT $python_pid
-	wait $python_pid
-
-		
+        python -m unittest discover -p "shell*.py"
+        file=$(find . -type f -name 'shell*' | head -n 1)
+        python $file &
+        python_pid=$!
+        sleep 5
+        kill -SIGINT $python_pid
+        wait $python_pid
