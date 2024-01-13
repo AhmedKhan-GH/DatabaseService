@@ -21,10 +21,37 @@ jobs:
         python -m unittest discover -p "test*.py"
     - name: Run custom script from file
       run: |
-        python -m unittest discover -p "shell*.py"
         file=$(find . -type f -name 'shell*' | head -n 1)
         python $file &
         python_pid=$!
         sleep 5
         kill -SIGINT $python_pid
         wait $python_pid
+    - name: Run custom scripts and terminate after delay
+      run: |
+        # Find all files starting with 'shell' and store them in an array
+        shell_files=($(find . -type f -name 'shell*'))
+
+    # Declare an associative array to store filename-PID pairs
+        declare -A pids
+
+    # Iterate over the array, start each script as a background process
+    # and store its PID
+        for file in "${shell_files[@]}"; do
+            python "$file" &
+            pid=$!
+            pids["$file"]=$pid
+        done
+
+    # Sleep for 5 seconds
+        sleep 5
+
+    # Iterate over the PIDs and send SIGINT to each process
+        for file in "${!pids[@]}"; do
+            kill -SIGINT "${pids[$file]}"
+        done
+
+    # Optional: wait for all processes to exit
+        for pid in "${pids[@]}"; do
+            wait $pid
+        done
