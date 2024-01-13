@@ -12,7 +12,7 @@ fi
 echo "Found file: $file"
 
 # Run your Python program in the background
-python your_python_script.py &
+python $file &
 python_pid=$!
 
 # Allow some time for the Python script to start and run
