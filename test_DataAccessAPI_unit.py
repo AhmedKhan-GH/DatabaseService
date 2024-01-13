@@ -11,7 +11,13 @@ class TestDataAccessAPI(unittest.TestCase):
         # Creates a test client
         
         self.app = create_app('test.db')
-        DataAccessAPI.create_table('CREATE TABLE IF NOT EXISTS test (id INTEGER PRIMARY KEY AUTOINCREMENT, name TEXT);')
+        DataAccessAPI.create_table("""
+                                   CREATE TABLE IF NOT EXISTS test 
+                                   (
+                                       id INTEGER PRIMARY KEY AUTOINCREMENT,
+                                       name TEXT
+                                   );
+                                   """)
         
         # Propagate the exceptions to the test client
         self.app.testing = True

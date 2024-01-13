@@ -1,6 +1,6 @@
 from flask import Flask, request, jsonify
 import os
-from SQLiteConnection import SQLiteConnection
+from SQLiteDatabase import SQLiteDatabase
 from DatabaseManager import DatabaseManager
 
 
@@ -10,7 +10,7 @@ from DatabaseManager import DatabaseManager
 app = Flask(__name__)
 
 def create_app(db_path):
-    connection = SQLiteConnection(db_path).__enter__()
+    connection = SQLiteDatabase(db_path).__enter__()
     app.db_manager = DatabaseManager(connection).__enter__()
     return app
     
@@ -28,10 +28,10 @@ def root():
     return jsonify({"message": "Hello World!"}), 200
 
 """
-@app.route('/get_record/<table>/<int:record_id>', methods=['GET'])
-def get_record(table, record_id):
+@app.route('/retrieve_record/<table>/<int:record_id>', methods=['GET'])
+def retrieve_record(table, record_id):
     with database_manager:
-        record = database_manager.get_record(table, record_id)
+        record = database_manager.retrieve_record(table, record_id)
     return jsonify(record)
 
 @app.route('/update_record/<table>/<int:record_id>', methods=['PUT'])

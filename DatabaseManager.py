@@ -1,10 +1,10 @@
 
-from SQLiteConnection import SQLiteConnection
+from SQLiteDatabase import SQLiteDatabase
 
 class DatabaseManager :
     #constructor with dependency injection
-    def __init__(self, connection):
-        self.database = connection
+    def __init__(self, database):
+        self.database = database
 
     #upon context entry
     def __enter__(self):
@@ -25,10 +25,15 @@ class DatabaseManager :
 
         # Print the results
         for row in result:
-            print(row)
-
+            print(row, end="\n")
+            
     def create_table(self, schema):
-        self.database.execute_query(schema)
+        # Check if the query starts with 'CREATE TABLE'
+        if not schema.strip().upper().startswith("CREATE TABLE"):
+            raise ValueError("The query does not start with 'CREATE TABLE'")
+        else:
+            # If the check passes, execute the query
+            self.database.execute_query(schema)
 
     def create_record(self, table, data):
         # Construct column and placeholder strings
@@ -39,9 +44,9 @@ class DatabaseManager :
         insert_query = f"INSERT INTO {table} ({columns}) VALUES ({placeholders});"
 
         # Execute the query
-        self.database.execute_query(insert_query, tuple(data.values()))
+        return self.database.execute_query(insert_query, tuple(data.values()))
 
-    def get_record(self, table, record_id):
+    def retrieve_record(self, table, record_id):
         
         select_query = f"SELECT * FROM {table} WHERE id = ?;"
 
@@ -63,3 +68,21 @@ class DatabaseManager :
 
         # Execute the query to delete the record
         self.database.execute_query(delete_query, (record_id,))
+
+    def check_exists(self, table, column, attribute):
+        """
+        Check if a given attribute exists in a specified column of a table.
+        
+        :param table: The table to check in.
+        :param column: The column to look through.
+        :param attribute: The attribute to check for.
+        :return: True if the attribute exists, False otherwise.
+        """
+        # Construct the SQL query
+        check_query = f"SELECT EXISTS(SELECT 1 FROM {table} WHERE {column} = ? LIMIT 1);"
+
+        # Execute the query and get result
+        result = self.database.execute_query(check_query, (attribute,))
+
+        # extract the boolean value
+        return result[0][0] == 1 
