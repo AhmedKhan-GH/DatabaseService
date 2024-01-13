@@ -23,27 +23,20 @@ jobs:
       run: |
         # Find all files starting with 'shell' and store them in an array
         shell_files=($(find . -type f -name 'shell*'))
-
-    # Declare an associative array to store filename-PID pairs
         declare -A pids
-
-    # Iterate over the array, start each script as a background process
-    # and store its PID
         for file in "${shell_files[@]}"; do
             python "$file" &
             pid=$!
             pids["$file"]=$pid
         done
 
-    # Sleep for 5 seconds
         sleep 5
 
-    # Iterate over the PIDs and send SIGINT to each process
         for file in "${!pids[@]}"; do
             kill -SIGINT "${pids[$file]}"
         done
 
-    # Optional: wait for all processes to exit
         for pid in "${pids[@]}"; do
             wait $pid
         done
+
