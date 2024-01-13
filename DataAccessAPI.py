@@ -3,7 +3,7 @@ from DatabaseManager import DatabaseManager
 
 # Initialize your database connection
 
-from flask import Flask, request, jsonify
+from flask import Flask, request, jsonify, request
 
 class DataAccessAPI:
     def __init__(self, manager):
@@ -25,7 +25,7 @@ class DataAccessAPI:
             if func is None:
                 raise RuntimeError('Not running with the Werkzeug Server')
             func()
-            return
+            return 'Server shutting down...'
 
         @self.server.route('/create_record/<table>', methods=['POST'])
         def create_record(table):

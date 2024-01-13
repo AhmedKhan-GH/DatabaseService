@@ -1,4 +1,5 @@
 from dash import Dash, html, Input, Output
+from flask import request
 
 class DataAccessGUI:
     def __init__(self, api, enable_gui=False):
@@ -8,11 +9,12 @@ class DataAccessGUI:
     def __enter__(self):
         if self.enable_gui == True:
             self.app = Dash(server=self.api.server, routes_pathname_prefix="/dash/")
+            self.app.run_server(debug=False)
+            self.api.server.testing = True
             self.setup_layout()
-            self.app.run(port=8050)
         return self
         
-    def __exit__(self, exc_type, exc_value, traceback):
+    def __exit__(self, exc_type, exc_value, exc_tb):
         return False
         
     def setup_layout(self):

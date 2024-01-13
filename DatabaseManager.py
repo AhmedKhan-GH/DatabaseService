@@ -26,7 +26,6 @@ class DatabaseManager :
     def get_table(self, table):
         # Execute the check query
         result = self.get_all_tables()
-        print(result)
 
         # Check if the table exists
         if not any(table in row for row in result):
