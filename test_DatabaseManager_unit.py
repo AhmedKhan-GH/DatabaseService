@@ -121,7 +121,7 @@ class TestDatabaseManager(unittest.TestCase):
 
         # Assert that the autoincrement works
         self.assertEqual(len(result), 1)
-        self.assertEqual(result[0][1], 'Another Test Name')
+        self.assertEqual(result[0][1], 'Another Name')
 
 if __name__ == '__main__':
     unittest.main()
