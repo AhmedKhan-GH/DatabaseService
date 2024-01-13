@@ -30,7 +30,7 @@ jobs:
             pids["$file"]=$pid
         done
 
-        sleep 5
+        sleep 1
 
         for file in "${!pids[@]}"; do
             kill -SIGINT "${pids[$file]}"
