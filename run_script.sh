@@ -18,9 +18,7 @@ python_pid=$!
 # Allow some time for the Python script to start and run
 sleep 2
 
-# Send SIGINT signal twice
-kill -SIGINT $python_pid
-sleep 1  # Wait a moment before sending the second SIGINT
+# Send SIGINT signal
 kill -SIGINT $python_pid
 
 # Optional: Wait for the Python program to end
