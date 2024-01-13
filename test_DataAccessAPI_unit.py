@@ -1,17 +1,25 @@
 import unittest
 import json
 import os
-import DataAccessAPI
-from DataAccessAPI import create_app  # Import your Flask app
+from DataAccessAPI import DataAccessAPI
+from DatabaseManager import DatabaseManager # Import your Flask server
+from SQLiteDatabase import SQLiteDatabase
 
 class TestDataAccessAPI(unittest.TestCase):
     
     def setUp(self):
+        #test database file cleanup
+        self.path = "test.db"
+        if os.path.exists(self.path):
+            os.remove(self.path)
+        
+        #dependency injection chain
+        database = SQLiteDatabase(self.path).__enter__()
+        manager = DatabaseManager(database).__enter__()
+        self.api = DataAccessAPI(manager).__enter__()
         
         # Creates a test client
-        
-        self.app = create_app('test.db')
-        DataAccessAPI.create_table("""
+        self.api.manager.create_table("""
                                    CREATE TABLE IF NOT EXISTS test 
                                    (
                                        id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -20,18 +28,17 @@ class TestDataAccessAPI(unittest.TestCase):
                                    """)
         
         # Propagate the exceptions to the test client
-        self.app.testing = True
+        self.api.server.testing = True
         
-        self.client = self.app.test_client()
+        self.client = self.api.server.test_client()
         
     def tearDown(self):
-        self.app.db_manager.__exit__(None, None, None)
-        self.app.db_manager.database.__exit__(None, None, None)
-        
-        if os.path.exists('test.db'):
-            os.remove('test.db')
-        
-
+        self.api.manager.database.__exit__(None, None, None)
+        self.api.manager.__exit__(None, None, None)
+        self.api.__exit__(None, None, None)
+        if os.path.exists(self.path):
+            os.remove(self.path)
+       
     def test_home_route(self):
         response = self.client.get('/')
         self.assertEqual(response.status_code, 200)
@@ -42,11 +49,31 @@ class TestDataAccessAPI(unittest.TestCase):
         data = {'name': 'Test Name'}
         # Send a POST request
         response = self.client.post('/create_record/test', data=json.dumps(data), content_type='application/json')
+        
+        self.assertEqual(response.get_json()["record_id"], 1)
         # Check the response
 
         self.assertEqual(response.status_code, 201)
+        
+    def test_print_table(self):
+        insert_data_1 = {'name': 'Test Name 1'}
+        insert_data_2 = {'name': 'Test Name 2'}
+        create_record_response_1 = self.client.post('/create_record/test', data=json.dumps(insert_data_1), content_type='application/json')
+        create_record_response_2 = self.client.post('/create_record/test', data=json.dumps(insert_data_2), content_type='application/json')
+        
+        self.assertEqual(create_record_response_1.status_code, 201)
+        self.assertEqual(create_record_response_1.get_json()["record_id"], 1)
+        
+        self.assertEqual(create_record_response_2.status_code, 201)
+        self.assertEqual(create_record_response_2.get_json()["record_id"], 2)
 
-       
+        print_table_response = self.client.get('/get_table/test')
+        
+        self.assertEqual(insert_data_1['name'], json.loads(print_table_response.data.decode('utf-8'))[0][1])
+        self.assertEqual(insert_data_2['name'], json.loads(print_table_response.data.decode('utf-8'))[1][1])
+    
+        self.assertEqual(print_table_response.status_code, 200)
+
     # Add more test methods for other endpoints
 
 if __name__ == '__main__':

@@ -16,16 +16,25 @@ class DatabaseManager :
     def __exit__(self, exc_type, exc_val, exc_tb):
         return False
     
-    def print_table(self, table):
-        # Create the select query
-        select_query = f"SELECT * FROM {table};"
+    def get_all_tables(self):
+        # Query to get all tables from sqlite_master
+        select_query = "SELECT name FROM sqlite_master WHERE type='table';"
 
         # Execute the query
-        result = self.database.execute_query(select_query)
+        return self.database.execute_query(select_query)
+    
+    def get_table(self, table):
+        # Execute the check query
+        result = self.get_all_tables()
+        print(result)
 
-        # Print the results
-        for row in result:
-            print(row, end="\n")
+        # Check if the table exists
+        if not any(table in row for row in result):
+            raise ValueError(f"Table '{table}' does not exist in the database.")
+
+        # Create and execute the select query
+        select_query = f"SELECT * FROM {table};"
+        return self.database.execute_query(select_query)
             
     def create_table(self, schema):
         # Check if the query starts with 'CREATE TABLE'

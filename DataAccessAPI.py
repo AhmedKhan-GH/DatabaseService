@@ -1,59 +1,54 @@
-from flask import Flask, request, jsonify
-import os
 from SQLiteDatabase import SQLiteDatabase
 from DatabaseManager import DatabaseManager
 
-
-
 # Initialize your database connection
 
-app = Flask(__name__)
+from flask import Flask, request, jsonify
 
-def create_app(db_path):
-    connection = SQLiteDatabase(db_path).__enter__()
-    app.db_manager = DatabaseManager(connection).__enter__()
-    return app
-    
-def create_table(schema):
-    app.db_manager.create_table(schema)
+class DataAccessAPI:
+    def __init__(self, manager):
+        self.server = Flask(__name__)
+        self.manager = manager
+        self.add_routes()
+        
+    def __enter__(self):
+        return self 
 
-@app.route('/create_record/<table>', methods=['POST'])
-def create_record(table):
-    data = request.get_json()
-    app.db_manager.create_record(table, data)
-    return jsonify({"message": "Record created successfully."}), 201
+    def __exit__(self, exc_type, exc_val, exc_tb):
+        return False
 
-@app.route('/')
-def root():
-    return jsonify({"message": "Hello World!"}), 200
+    def add_routes(self):
+        @self.server.route('/create_record/<table>', methods=['POST'])
+        def create_record(table):
+            data = request.get_json()
+            record_id = self.manager.create_record(table, data)
+            return jsonify({"message": "Record created successfully.", "record_id": record_id}), 201
 
-"""
-@app.route('/retrieve_record/<table>/<int:record_id>', methods=['GET'])
-def retrieve_record(table, record_id):
-    with database_manager:
-        record = database_manager.retrieve_record(table, record_id)
-    return jsonify(record)
+        @self.server.route('/')
+        def root():
+            return jsonify({"message": "Welcome to DataAccessAPI"}), 200
 
-@app.route('/update_record/<table>/<int:record_id>', methods=['PUT'])
-def update_record(table, record_id):
-    data = request.json
-    with database_manager:
-        database_manager.update_record(table, record_id, data)
-    return jsonify({"message": "Record updated successfully."})
+        @self.server.route('/retrieve_record/<table>/<int:record_id>', methods=['GET'])
+        def retrieve_record(table, record_id):
+            record = self.manager.retrieve_record(table, record_id)
+            return jsonify(record)
 
-@app.route('/delete_record/<table>/<int:record_id>', methods=['DELETE'])
-def delete_record(table, record_id):
-    with database_manager:
-        database_manager.delete_record(table, record_id)
-    return jsonify({"message": "Record deleted successfully."})
+        @self.server.route('/update_record/<table>/<int:record_id>', methods=['PUT'])
+        def update_record(table, record_id):
+            data = request.json
+            count = self.manager.update_record(table, record_id, data)
+            return jsonify({"message": f"{count} record(s) updated successfully."}), 200
 
-@app.route('/print_table/<table>', methods=['GET'])
-def print_table(table):
-    with database_manager:
-        records = database_manager.print_table(table)
-    return jsonify(records)
-"""        
+        @self.server.route('/delete_record/<table>/<int:record_id>', methods=['DELETE'])
+        def delete_record(table, record_id):
+            count = self.manager.delete_record(table, record_id)
+            return jsonify({"message": f"{count} record(s) deleted successfully."}), 200
 
+        @self.server.route('/get_table/<table>', methods=['GET'])
+        def print_table(table):
+            records = self.manager.get_table(table)
+            return jsonify(records)
 
-if __name__ == '__main__':
-    app.run()
+    def run(self, host='0.0.0.0', port=5000):
+        self.server.run(host=host, port=port)
+        

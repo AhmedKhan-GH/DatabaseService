@@ -83,14 +83,14 @@ class TestDatabaseManager(unittest.TestCase):
 
     def test_delete_record(self):
         # Insert a record to delete
-        row_id = self.manager.create_record("test_table", {"name": "Test Name"})
+        record_id = self.manager.create_record("test_table", {"name": "Test Name"})
 
         # Delete the record using the delete_record method (to be implemented)
         # Replace the following line with the actual delete method once it's implemented
-        self.manager.delete_record('test_table', row_id)
+        self.manager.delete_record('test_table', record_id)
 
         # Query the deleted record
-        result = self.manager.retrieve_record("test_table", row_id)
+        result = self.manager.retrieve_record("test_table", record_id)
 
         # Assert that the record is deleted correctly
         self.assertEqual(len(result), 0)
@@ -108,6 +108,20 @@ class TestDatabaseManager(unittest.TestCase):
         # Test for a non-existing attribute
         not_exists = self.manager.check_exists("test_table", "name", "Non-Existing Name")
         self.assertFalse(not_exists)
+        
+    def test_autoincrement(self):
+        # Insert a record
+        self.manager.create_record("test_table", {"name": "Test Name"})
+
+        # Insert another record
+        self.manager.create_record("test_table", {"name": "Another Name"})
+
+        # Query the records
+        result = self.manager.retrieve_record("test_table", 2)
+
+        # Assert that the autoincrement works
+        self.assertEqual(len(result), 1)
+        self.assertEqual(result[0][1], 'Another Test Name')
 
 if __name__ == '__main__':
     unittest.main()
