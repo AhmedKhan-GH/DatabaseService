@@ -20,3 +20,5 @@ jobs:
     - name: Run tests
       run: |
         python -m unittest discover -p "test*.py"
+    - name: Shutdown Flask app
+      run: curl -X POST http://localhost:5000/shutdown

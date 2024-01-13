@@ -18,6 +18,15 @@ class DataAccessAPI:
         return False
 
     def add_routes(self):
+        
+        @self.server.route('/shutdown', methods=['POST'])
+        def shutdown():
+            func = request.environ.get('werkzeug.server.shutdown')
+            if func is None:
+                raise RuntimeError('Not running with the Werkzeug Server')
+            func()
+            return
+
         @self.server.route('/create_record/<table>', methods=['POST'])
         def create_record(table):
             data = request.get_json()
